@@ -1,5 +1,6 @@
 require "big"
 require "random"
+require "uuid"
 
 module Extlib
   VERSION = "0.1.0"
@@ -54,6 +55,7 @@ end
 struct BigInt
   # converts a slice of bytes in which bytes[0] is the low-order byte of the BigInt and bytes[15] is the high order byte
   # of the BigInt back into the corresponding BigInt
+  # This method assumes `bytes` is little endian
   def self.from_bytes(bytes : Bytes | Array(UInt8)) : BigInt
     bytes.to_a.reverse.reduce(BigInt.new(0)) {|acc, byte| (acc << 8) | byte }
   end
@@ -93,6 +95,7 @@ end
 class String
   # converts hex string to Bytes in which the leftmost part of the string represents the most significant bytes and
   # the rightmost part of the string represents the least significant bytes
+  # Returns Bytes object formatted in big endian if the byte sequence was considered a number - most significant byte in the lowest address and least significant byte in the largest address.
   def hex_to_bytes : Bytes
     str = if size.even?
       self
@@ -107,19 +110,22 @@ class String
   end
 
   def hex_to_bigint : BigInt
-    BigInt.from_bytes(hex_to_bytes)
+    hex_to_bytes_le = hex_to_bytes.reverse!
+    BigInt.from_bytes(hex_to_bytes_le)
   end
 end
 
 # monkey patch UInt128 to introduce a new class method onto UInt128
 struct UInt128
   # converts the u128 into a slice of bytes in which bytes[0] is the low-order byte of the u128 and bytes[15] is the high order byte of the u128
+  # Returns a Slice(UInt8) in little endian format.
   def self.bytes(u128_p : Pointer(UInt128)) : Slice(UInt8)
     u8_p = u128_p.as(UInt8*)
     u8_p.to_slice(16)     # bytes[0] is the low-order byte of the u128 and bytes[15] is the high order byte of the u128
   end
 
   # converts a slice of bytes in which bytes[0] is the low-order byte of the u128 and bytes[15] is the high order byte of the u128 back into the corresponding u128
+  # Assumes `bytes` in little endian format.
   def self.from_bytes(bytes : Bytes | StaticArray(UInt8, 16)) : UInt128
     bytes.to_a.reverse.reduce(0_u128) {|acc, byte| (acc << 8) | byte }
   end
@@ -139,7 +145,7 @@ struct UUID
   end
 
   # Returns a UUID from a given u128
-  # NOTE: This encoding is called "inverted because the the most significant byte of the u128 is the least significant byte (right-most byte) of the UUID
+  # NOTE: This encoding is called "inverted" because the the most significant byte of the u128 is the least significant byte (right-most byte) of the UUID
   #       and the least significant byte of the u128 is the most significant byte (left-most byte) of the UUID.
   def self.from_u128_inverted(u128 : UInt128, version : UUID::Version? = nil, variant : UUID::Variant? = nil) : UUID
     UUID.new(UInt128.bytes(pointerof(u128)), variant, version)
