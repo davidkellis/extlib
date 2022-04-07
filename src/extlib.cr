@@ -48,7 +48,6 @@ class Array(T)
     arr = self
     Bytes.new(size) {|i| arr[i].to_u8 }
   end
-  
 end
 
 # monkey patch BigInt to introduce a new class method onto BigInt
