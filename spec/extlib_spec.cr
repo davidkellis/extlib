@@ -21,6 +21,7 @@ describe String do
 
   it "converts a hex string to a BigInt" do
     "abc".hex_to_bigint.should eq(BigInt.new(10*16*16 + 11*16 + 12))
+    "abcd".hex_to_bigint.should eq(BigInt.new(10*16**3 + 11*16**2 + 12*16 + 13))
   end
 end
 
