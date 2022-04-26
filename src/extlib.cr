@@ -8,6 +8,19 @@ module Extlib
   # TODO: Put your code here
 end
 
+class Period
+  attr_accessor :years, :months, :days, :hours, :minutes, :seconds, :milliseconds
+  def initialize(years, months, days, hours, minutes, seconds, milliseconds)
+    @years = years
+    @months = months
+    @days = days
+    @hours = hours
+    @minutes = minutes
+    @seconds = seconds
+    @milliseconds = milliseconds
+  end
+end
+
 class Array(T)
   # Example:
   # puts [1,2,3,4].fold_right(5) {|memo, num| memo * 10 + num }    # prints "54321"
@@ -111,6 +124,11 @@ class String
   def hex_to_bigint : BigInt
     hex_to_bytes_le = hex_to_bytes.reverse!
     BigInt.from_bytes(hex_to_bytes_le)
+  end
+  
+  def to_period
+    m = match(/((?<d>\d+)d)?(?<h>(\d+)h)?(?<m>(\d+)m)?/)
+    Period.new(0, 0, m[:d], m[:h], m[:m], 0, 0)
   end
 end
 
