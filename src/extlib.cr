@@ -9,7 +9,14 @@ module Extlib
 end
 
 class Period
-  attr_accessor :years, :months, :days, :hours, :minutes, :seconds, :milliseconds
+  property years
+  property months
+  property days
+  property hours
+  property minutes
+  property seconds
+  property milliseconds
+
   def initialize(years, months, days, hours, minutes, seconds, milliseconds)
     @years = years
     @months = months
@@ -30,7 +37,7 @@ class Array(T)
     end
     memo
   end
- 
+
   # Example:
   # puts [1,2,3,4].fold_right(5) {|memo, num, i| puts("#{i} -> #{num}"); memo * 10 + num }
   # prints:
@@ -95,7 +102,7 @@ end
 
 struct Slice(T)
   BYTE_TO_HEX_MAP = (0..255).each.with_index.map {|v, i| i.to_s(16).rjust(2, '0') }.to_a
-  
+
   # assumes Slice(UInt8)
   def to_hex : String
     String.build do |str|
@@ -125,7 +132,7 @@ class String
     hex_to_bytes_le = hex_to_bytes.reverse!
     BigInt.from_bytes(hex_to_bytes_le)
   end
-  
+
   def to_period
     m = match(/((?<d>\d+)d)?(?<h>(\d+)h)?(?<m>(\d+)m)?/)
     Period.new(0, 0, m[:d], m[:h], m[:m], 0, 0)
