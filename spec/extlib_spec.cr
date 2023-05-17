@@ -30,7 +30,7 @@ describe UInt128 do
     uint = 0b0001_0010_0011_0100_0101_0110_0111_1000_1001_1010_1011_1100_1101_1110_1111_0000_0001_0010_0011_0100_0101_0110_0111_1000_1001_1010_1011_1100_1101_1110_1111_0111_u128
 
     uint_byte_array_from_msb_to_lsb = [0b00010010_u8, 0b00110100_u8, 0b01010110_u8, 0b01111000_u8, 0b10011010_u8, 0b10111100_u8, 0b11011110_u8, 0b11110000_u8, 0b00010010_u8, 0b00110100_u8, 0b01010110_u8, 0b01111000_u8, 0b10011010_u8, 0b10111100_u8, 0b11011110_u8, 0b11110111_u8] of UInt8
-    
+
     UInt128.bytes(pointerof(uint)).to_a.should eq(uint_byte_array_from_msb_to_lsb.reverse)
   end
 
@@ -54,7 +54,7 @@ describe UUID do
     # pos       1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18   19   20   21   22   23   24   25   26   27   28   29   30   31   32
     # value     1    2    3    4    5    6    7    8    9   10   11   12   13   14   15    0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15    7
     # hex       1    2    3    4    5    6    7    8    9    a    b    c    d    e    f    0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f    7
-    
+
     uuid = UUID.from_u128(uint, nil, nil)
 
     uuid.to_s.should eq("12345678-9abc-def0-1234-56789abcdef7")   # this is a properly hyphenated version of the expected_hexstring
@@ -89,13 +89,13 @@ describe UUID do
 
     uuid.to_s.should eq("12345678-9abc-4ef0-9234-56789abcdef7")   # this is a properly hyphenated version of the expected_hexstring
   end
-  
+
   it "UUID.from_u128_inverted converts uint128 to UUID with a nil version and nil variant" do
     uint = 0b0001_0010_0011_0100_0101_0110_0111_1000_1001_1010_1011_1100_1101_1110_1111_0000_0001_0010_0011_0100_0101_0110_0111_1000_1001_1010_1011_1100_1101_1110_1111_0111_u128
     # pos       1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18   19   20   21   22   23   24   25   26   27   28   29   30   31   32
     # value     1    2    3    4    5    6    7    8    9   10   11   12   13   14   15    0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15    7
     # hex       1    2    3    4    5    6    7    8    9    a    b    c    d    e    f    0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f    7
-    
+
     uuid = UUID.from_u128_inverted(uint, nil, nil)
 
     # test #1 - internal bytes representation of UUID represents the 0th byte as the low-order byte of the u128 and the 15th byte as the high order byte of the u128
@@ -162,5 +162,25 @@ describe UUID do
 
     # test #3 - UUID hexstring is propertly formatted
     uuid.to_s.should eq("f7debc9a-7856-4412-b0de-bc9a78563412")   # this is a properly hyphenated version of the expected_hexstring
+  end
+
+  it "guarantees that .from_u128 and #to_u128 are inverse operations" do
+    uint = 0b0001_0010_0011_0100_0101_0110_0111_1000_1001_1010_1011_1100_1101_1110_1111_0000_0001_0010_0011_0100_0101_0110_0111_1000_1001_1010_1011_1100_1101_1110_1111_0111_u128
+    # pos       1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18   19   20   21   22   23   24   25   26   27   28   29   30   31   32
+    # value     1    2    3    4    5    6    7    8    9   10   11   12   13   14   15    0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15    7
+    # hex       1    2    3    4    5    6    7    8    9    a    b    c    d    e    f    0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f    7
+    uuid = UUID.from_u128(uint, nil, nil)
+    uuid.to_s.should eq("12345678-9abc-def0-1234-56789abcdef7")   # this is a properly hyphenated version of the expected_hexstring
+    uuid.to_u128.should eq(uint)
+  end
+
+  it "guarantees that .from_u128_inverted and #to_u128_inverted are inverse operations" do
+    uint = 0b0001_0010_0011_0100_0101_0110_0111_1000_1001_1010_1011_1100_1101_1110_1111_0000_0001_0010_0011_0100_0101_0110_0111_1000_1001_1010_1011_1100_1101_1110_1111_0111_u128
+    # pos       1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18   19   20   21   22   23   24   25   26   27   28   29   30   31   32
+    # value     1    2    3    4    5    6    7    8    9   10   11   12   13   14   15    0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15    7
+    # hex       1    2    3    4    5    6    7    8    9    a    b    c    d    e    f    0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f    7
+    uuid = UUID.from_u128_inverted(uint, nil, nil)
+    # uuid.to_s.should eq("12345678-9abc-def0-1234-56789abcdef7")   # this is a properly hyphenated version of the expected_hexstring
+    uuid.to_u128_inverted.should eq(uint)
   end
 end

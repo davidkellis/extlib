@@ -145,7 +145,7 @@ struct UInt128
   # Returns a Slice(UInt8) in little endian format.
   def self.bytes(u128_p : Pointer(UInt128)) : Slice(UInt8)
     u8_p = u128_p.as(UInt8*)
-    u8_p.to_slice(16)     # bytes[0] is the low-order byte of the u128 and bytes[15] is the high order byte of the u128
+    u8_p.to_slice(16).clone     # bytes[0] is the low-order byte of the u128 and bytes[15] is the high order byte of the u128
   end
 
   # converts a slice of bytes in which bytes[0] is the low-order byte of the u128 and bytes[15] is the high order byte of the u128 back into the corresponding u128
@@ -173,5 +173,13 @@ struct UUID
   #       and the least significant byte of the u128 is the most significant byte (left-most byte) of the UUID.
   def self.from_u128_inverted(u128 : UInt128, version : UUID::Version? = nil, variant : UUID::Variant? = nil) : UUID
     UUID.new(UInt128.bytes(pointerof(u128)), variant, version)
+  end
+
+  def to_u128
+    UInt128.from_bytes(bytes.clone.reverse!)
+  end
+
+  def to_u128_inverted
+    UInt128.from_bytes(bytes)
   end
 end
