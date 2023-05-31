@@ -139,6 +139,18 @@ class String
   end
 end
 
+struct Time::Span
+  def self.parse(span : String?) : Time::Span?
+    if span && (match = /((?<days>\d+)d)?((?<hours>\d+)h)?((?<minutes>\d+)m)?((?<seconds>\d+)s)?/.match(span))
+      days = match["days"]?.try &.to_i || 0
+      hours = match["hours"]?.try &.to_i || 0
+      minutes = match["minutes"]?.try &.to_i || 0
+      seconds = match["seconds"]?.try &.to_i || 0
+      Time::Span.new(days: days, hours: hours, minutes: minutes, seconds: seconds)
+    end
+  end
+end
+
 # monkey patch UInt128 to introduce a new class method onto UInt128
 struct UInt128
   # converts the u128 into a slice of bytes in which bytes[0] is the low-order byte of the u128 and bytes[15] is the high order byte of the u128
