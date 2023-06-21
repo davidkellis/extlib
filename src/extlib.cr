@@ -171,6 +171,13 @@ struct UInt128
   end
 end
 
+# monkey patch UInt64 to introduce a new class method onto UInt128
+struct UInt64
+  def self.rand(random : Random = Random) : UInt64
+    random.rand(UInt64)
+  end
+end
+
 # monkey patch UUID to introduce a new class method onto UUID
 struct UUID
   # Returns a UUID from a given u128
